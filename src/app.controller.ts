@@ -8,7 +8,8 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { FilesValidationPipe, FileValidationPipe } from './app.validator';
+import { FileValidationPipe } from './file-validation/file-validation.pipe';
+import { FilesValidationPipe } from './files-validation/files-validation.pipe';
 
 @Controller()
 export class AppController {
