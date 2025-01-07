@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FilesValidationPipe, FileValidationPipe } from './app.validator';
 
 @Controller()
 export class AppController {
@@ -21,16 +22,14 @@ export class AppController {
   // Upload Single File
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file : Express.Multer.File) {
-    console.log("Single File")
+  uploadFile(@UploadedFile(new FileValidationPipe() /* File validation using a pipe */) file: Express.Multer.File) {
     return file
   }
 
   // Upload Multiple Files
   @Post('uploads')
   @UseInterceptors(AnyFilesInterceptor())
-  uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
-    console.log("Multiple Files")
+  uploadFiles(@UploadedFiles(new FilesValidationPipe()) files: Array<Express.Multer.File>) {
     return files
-  }  
+  }
 }
