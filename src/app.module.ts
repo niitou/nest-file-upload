@@ -13,14 +13,14 @@ import { diskStorage } from 'multer';
       serveRoot: '/public/',
     }),
     MulterModule.register({
-      storage : diskStorage({
-        destination : './public',
-        filename : (req, file, cb) => {
-          const filename = `${Date.now()}-${file.originalname}`
-          cb(null, filename)
-        }
-      })
-    })
+      storage: diskStorage({
+        destination: './public',
+        filename: (req, file, cb) => {
+          const filename = `${Date.now()}-${file.originalname}`;
+          cb(null, filename);
+        },
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
