@@ -1,6 +1,5 @@
 import {
   ArgumentMetadata,
-  BadRequestException,
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
@@ -13,39 +12,35 @@ export class FilesValidationPipe implements PipeTransform {
   private readonly allowedExtensions = ['.png', '.jpg'];
 
   // Delete file
-  removeFile(filename: any) {
-    fs.unlink(join(__dirname + '/../../public/' + filename), (err) => {
+  removeFile(value: any, message: string) {
+    fs.unlink(join(__dirname + '/../../public/' + value.filename), (err) => {
       if (err) throw err;
-      console.log(`${filename} is deleted`);
+      console.log(`${value.filename} is deleted`);
     });
+
+    value['status'] = {
+      message: message,
+      error: 'Bad Request',
+      statusCode: 400,
+    };
   }
 
   transform(value: Array<any>, metadata: ArgumentMetadata) {
     const extensions = value.map((val) => extname(val.originalname));
     const fileSizes = value.map((val) => val.size);
-    const fileNames = value.map((val) => val.filename);
 
     fileSizes.forEach((fileSize, index) => {
       const extension = extensions[index];
 
       if (!this.allowedExtensions.includes(extension)) {
-        this.removeFile(fileNames[index]);
-
-        value[index]['status'] = {
-          message: `File type ${extension} is not supported`,
-          error: 'Bad Request',
-          statusCode: 400,
-        };
+        this.removeFile(
+          value[index],
+          `File type ${extension} is not supported`,
+        );
       }
 
       if (fileSize > this.maxFileSize) {
-        this.removeFile(fileNames[index]);
-
-        value[index]['status'] = value[index]['status'] = {
-          message: `File size is too large`,
-          error: 'Bad Request',
-          statusCode: 400,
-        };
+        this.removeFile(value[index], `File size is too large`);
       }
     });
 
