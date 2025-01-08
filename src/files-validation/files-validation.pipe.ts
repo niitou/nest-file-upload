@@ -13,12 +13,11 @@ export class FilesValidationPipe implements PipeTransform {
   private readonly allowedExtensions = ['.png', '.jpg'];
 
   // Delete file
-  removeFile(filename: any, message: string) {
+  removeFile(filename: any) {
     fs.unlink(join(__dirname + '/../../public/' + filename), (err) => {
       if (err) throw err;
       console.log(`${filename} is deleted`);
     });
-    throw new BadRequestException(message);
   }
 
   transform(value: Array<any>, metadata: ArgumentMetadata) {
@@ -30,14 +29,23 @@ export class FilesValidationPipe implements PipeTransform {
       const extension = extensions[index];
 
       if (!this.allowedExtensions.includes(extension)) {
-        this.removeFile(
-          fileNames[index],
-          `File type ${extension} is not supported`,
-        );
+        this.removeFile(fileNames[index]);
+
+        value[index]['status'] = {
+          message: `File type ${extension} is not supported`,
+          error: 'Bad Request',
+          statusCode: 400,
+        };
       }
 
       if (fileSize > this.maxFileSize) {
-        this.removeFile(fileNames[index], `File size is too large`);
+        this.removeFile(fileNames[index]);
+
+        value[index]['status'] = value[index]['status'] = {
+          message: `File size is too large`,
+          error: 'Bad Request',
+          statusCode: 400,
+        };
       }
     });
 
